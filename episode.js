@@ -1,6 +1,5 @@
 const { Cheerio } = require("cheerio");
 const { v4 } = require("uuid");
-const { showSearcher } = require("./showSearcher");
 const server_url = '####';
 
 function Episode(episode_btn, season) {
@@ -19,14 +18,17 @@ function Episode(episode_btn, season) {
 
     this.get_episode = () => {
         return `
-        <h1 style='display:block;text-align:center'>${this.season.title}&nbsp;:&nbsp;${this.title}</h1>
-        <div style='display:flex;justify-content:space-between'>
-            ${this.prev ? '<a href="' + server_url + "/watch?season=" + this.prev.season + "&episode=" + this.prev.id + '">Previous</a>' : '<a href="#" disabled>Previous</a>'}
-            <a href='${server_url}/home'>Home</a>
-            ${this.next ? '<a href="' + server_url + "/watch?season=" + this.next.season + "&episode=" + this.next.id + '">Next</a>' : '<a href="#" disabled>Previous</a>'}
-        </div>
-        <iframe id='episode' sandbox = "allow-same-origin allow-scripts" src="${this.url}" mozallowfullscreen="true" width="100%" height="100%" frameborder="0"></iframe>
-        <p>
+        <head><title>${this.season.title}&nbsp;:&nbsp;${this.title}</title></head>
+        <body>
+            <a href='${server_url}/search?title=${season.search_query}'>Back to Results</a><h1 style='display:block;text-align:center'>${this.season.title}&nbsp;:&nbsp;${this.title}</h1>
+            <div style='display:flex;justify-content:space-between'>
+                ${this.prev ? '<a href="' + server_url + "/watch?season=" + this.prev.season.id + "&episode=" + this.prev.id + '">Previous</a>' : '<a href="#">&nbsp;</a>'}
+                <a href='${server_url}/home'>Home</a>
+                ${this.next ? '<a href="' + server_url + "/watch?season=" + this.next.season.id + "&episode=" + this.next.id + '">Next</a>' : '<a href="#">&nbsp;</a>'}
+            </div>
+            <iframe id='episode' sandbox = "allow-same-origin allow-scripts" src="${this.url}" mozallowfullscreen="true" width="100%" height="100%" frameborder="0"></iframe>
+            <p>
+        </body>
 
         `
     }

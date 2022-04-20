@@ -5,12 +5,14 @@ const { Episode } = require('./episode');
 const server_url = '####';
 const steal_from = "https://ww1.123moviesfree.net";
 
-function season(html_result_elem) {
+function season(html_result_elem, show_name) {
     this.title = cheerio.load(html_result_elem)('img')[0].attribs.alt;
     this.url = steal_from + html_result_elem.attribs.href + '/watching.html';
     this.id = v4();
     this.season_url = server_url + '/show?title=' + this.id;
     this.episodes = undefined;
+    this.search_query = show_name;
+
     this.get_season_req = () => {
         return new Promise((resolve,reject)=>{
             request({
@@ -58,4 +60,4 @@ function season(html_result_elem) {
     return this;
 }
 
-module.exports = {season, steal_from};
+module.exports = {season, steal_from, server_url};

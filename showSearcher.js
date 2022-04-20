@@ -1,6 +1,6 @@
 const request = require('request');
 const cheerio = require('cheerio');
-const { season,steal_from } = require('./season');
+const { season,steal_from, server_url } = require('./season');
 const MAX_PAGE = 5;
 
 var showSearcher = {
@@ -9,12 +9,14 @@ var showSearcher = {
         title: undefined,
         seasons: undefined
     },
+    current_search:undefined,
 
     get_season_by_id(id) {
         return showSearcher.current_show.seasons.find((season_ob)=>season_ob.id == id);
     },
     
     search(show_name) {
+        this.current_search = show_name;
         return new Promise((resolve,reject)=>{
             request({
                 url: showSearcher.search_url + show_name.replace(' ','+'),
@@ -26,7 +28,7 @@ var showSearcher = {
     },
 
     display_seasons() {
-        var r = '';
+        var r = `<p style="display:block;text-align:center"><h4><a href="${server_url}/home">Home</a></h4></p>`;
         showSearcher.current_show.seasons.forEach((s)=>{
             r += `<p><a href='${s.season_url}'>${s.title}</a></p>`;
         });
@@ -43,9 +45,9 @@ var showSearcher = {
                     if (results.length) {
                         let seasons = page('.ml-item > a');
                         seasons = [...seasons.map((i,season_elem)=>{
-                            return new season(season_elem);
+                            return new season(season_elem, show_name);
                         })].filter((show_instance)=>{
-                            return show_instance.title.toLowerCase().includes(show_name.toLowerCase());
+                            return show_name.split(' ').map(s=>show_instance.title.toLowerCase().includes(s.toLowerCase())).every(v=>v==true);
                         });
                         showSearcher.current_show.seasons  = showSearcher.current_show.seasons.concat(seasons);
                         showSearcher.current_show.seasons.sort((a,b)=>a.title.localeCompare(b.title, undefined, {numeric: true}));
@@ -67,9 +69,9 @@ var showSearcher = {
                     showSearcher.current_show.title = show_name;
                     showSearcher.current_show.seasons = seasons = page('.ml-item > a');
                     showSearcher.current_show.seasons = [...showSearcher.current_show.seasons.map((i,season_elem)=>{
-                        return new season(season_elem);
+                        return new season(season_elem, show_name);
                     })].filter((show_instance)=>{
-                        return show_instance.title.toLowerCase().includes(show_name.toLowerCase());
+                        return show_name.split(' ').map(s=>show_instance.title.toLowerCase().includes(s.toLowerCase())).every(v=>v==true);
                     }).sort((a,b)=>a.title.localeCompare(b.title, undefined, {numeric: true}));
                     
                     let page_nums = [...page('ul.pagination > li > a')].map(e=>e.children[0].data).filter(e=>!isNaN(e));
